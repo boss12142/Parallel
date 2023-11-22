@@ -268,6 +268,10 @@ cp -f "$HOOK_PARALLELS_DYLIB" "$HOOK_PARALLELS_DYLIB_DST"
 # install macked dylib
 if [ $MODE == $MODE_NO_USB ]; then
   cp -f "$MACKED_DYLIB" "$MACKED_DYLIB_DST"
+  chown root:wheel "${MACKED_DYLIB_DST}"
+  chmod 755 "${MACKED_DYLIB_DST}"
+  xattr -d com.apple.quarantine "$MACKED_DYLIB_DST"
+  codesign -f -s - --timestamp=none --all-architectures "${MACKED_DYLIB_DST}"
 elif [ -f "$MACKED_DYLIB_DST" ]; then
   rm "$MACKED_DYLIB_DST"
 fi
