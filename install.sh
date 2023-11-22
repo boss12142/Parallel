@@ -72,6 +72,7 @@ MODE_NO_SIP=2
 # check mode
 if [ "$1" == "downgrade_vm" ]; then
   MODE=$MODE_DOWNGRADE_VM
+  echo -e "${COLOR_WARN}[⚠] Mixing versions doesn't work on all system, try or downgrade.${NOCOLOR}"
 elif [ "$1" == "no_usb" ]; then
   MODE=$MODE_NO_USB
 elif [ "$1" == "no_sip" ]; then
@@ -317,15 +318,15 @@ if [ $MODE == $MODE_DOWNGRADE_VM ]; then
   "$MASK_APPLY_BIN" "-s$PDFM_VM_INFO_BCUP" "-m$MASK_VM_INFO_54734_TO_54729" "-o$PDFM_VM_INFO_DST"
 fi
 
-# patch vm if neccessary (use tmp dir so that --deep flag has not to be used)
+# patch vm if neccessary
 if [ $MODE == $MODE_NO_USB ]; then
   chflags -R 0 "${PDFM_VM_DST}"
-  cp -f "$PDFM_VM_DST" "$PDFM_VM_DST_TMP"
-  "$INSERT_DYLIB_BIN" --no-strip-codesig --inplace "$HOOK_PARALLELS_LOAD" "$PDFM_VM_DST_TMP"
-  codesign -f -s - --timestamp=none --all-architectures --entitlements "${PDFM_VM_ENT}" "${PDFM_VM_DST_TMP}"
-  cp -f "$PDFM_VM_DST_TMP" "$PDFM_VM_DST"
+  cp -f "$PDFM_VM_BCUP" "$PDFM_VM_DST_TMP"
+  "$INSERT_DYLIB_BIN" --no-strip-codesig --inplace "$HOOK_PARALLELS_LOAD" "$PDFM_VM_DST"
   chown root:wheel "${PDFM_VM_DST}"
   chmod 755 "${PDFM_VM_DST}"
+  codesign -f -s - --timestamp=none --all-architectures --deep --entitlements "${PDFM_VM_ENT}" "${PDFM_VM_DST}"
+  cp -f "$PDFM_VM_DST_TMP" "$PDFM_VM_BCUP"
 fi
 
 # install fake license
@@ -369,6 +370,6 @@ fi
 "${PDFM_DIR}/Contents/MacOS/prlsrvctl" set --allow-attach-screenshots off &>/dev/null
 
 if [ $MODE == $MODE_DOWNGRADE_VM ]; then
-  echo -e "${COLOR_WARN}⚠ Don't fully quit and reopen Parallels very quickly. It's automatically resetting the crack using hooked functions but this may break it ⚠${NOCOLOR}"
-  echo -e "${COLOR_WARN}🔧 In case you're crack stops working, reset it using \"reset.command\" 🔧${NOCOLOR}"
+  echo -e "${COLOR_WARN}[⚠] Don't fully quit and reopen Parallels very quickly. It's automatically resetting the crack using hooked functions but this may break it${NOCOLOR}"
+  echo -e "${COLOR_WARN}[⚠] In case you're crack stops working, reset it using \"reset.command\"${NOCOLOR}"
 fi
