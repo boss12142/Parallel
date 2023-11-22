@@ -3,6 +3,7 @@
 COLOR_INFO='\033[0;34m'
 COLOR_ERR='\033[0;35m'
 COLOR_WARN='\033[0;93m'
+COLOR_OK='\033[1;32m'
 NOCOLOR='\033[0m'
 
 BASE_PATH=$(
@@ -371,7 +372,20 @@ fi
 "${PDFM_DIR}/Contents/MacOS/prlsrvctl" set --cep off &>/dev/null
 "${PDFM_DIR}/Contents/MacOS/prlsrvctl" set --allow-attach-screenshots off &>/dev/null
 
-echo -e "${COLOR_WARN}[⚠] The no USB relies on closed source for the Dispatcher, which fixes a Network error, I am not able to reproduce.${NOCOLOR}"
+echo -e ""
+echo -e "${COLOR_OK}Do you want to express gratitude for our reverse engineering efforts?${NOCOLOR}"
+echo -e ""
+echo -e "${COLOR_OK}[ PayPal ] trueToastedCode (Involved in versions 18.3 - 19.1.1)${NOCOLOR}"
+echo -e "${COLOR_OK}https://paypal.me/trueToastedCode${NOCOLOR}"
+echo -e ""
+echo -e "${COLOR_OK}[ PayPal ] alsyundawy (Involved in versions 18.0 - 18.1)${NOCOLOR}"
+echo -e "${COLOR_OK}https://paypal.me/alsyundawy${NOCOLOR}"
+echo -e ""
+echo -e "${COLOR_OK}[ PayPal ] QiuChenly (Inspired trueToastedCode on dylib-injections in 19.1)${NOCOLOR}"
+echo -e "${COLOR_OK}https://github.com/QiuChenly${NOCOLOR}"
+echo -e ""
+
+echo -e "${COLOR_WARN}[⚠] The No USB method relies on closed source for the Dispatcher, which fixes a Network error, I am not able to reproduce.${NOCOLOR}"
 echo -e "${COLOR_WARN}[⚠] Maybe you are able to reverse engineer this hack 😉.${NOCOLOR}"
 
 if [ $MODE == $MODE_DOWNGRADE_VM ]; then
