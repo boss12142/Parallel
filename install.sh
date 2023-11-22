@@ -385,7 +385,7 @@ echo -e "${COLOR_OK}[ PayPal ] QiuChenly (Inspired trueToastedCode on dylib-inje
 echo -e "${COLOR_OK}https://github.com/QiuChenly${NOCOLOR}"
 echo -e ""
 
-echo -e "${COLOR_WARN}[⚠] The No USB method relies on closed source for the Dispatcher, which fixes a Network error, I am not able to reproduce.${NOCOLOR}"
+echo -e "${COLOR_WARN}[⚠] The No USB method relies on closed source for the Dispatcher but uses open source code for the VM, which fixes a Network error, I am not able to reproduce.${NOCOLOR}"
 echo -e "${COLOR_WARN}[⚠] Maybe you are able to reverse engineer this hack 😉.${NOCOLOR}"
 
 if [ $MODE == $MODE_DOWNGRADE_VM ]; then

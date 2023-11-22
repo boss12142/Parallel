@@ -29,7 +29,7 @@ The use of software cracks for illegal purposes is strictly prohibited and we en
 |no_sip|✅|✅|❌|✅|✅|✅|❌|
 
 #### No USB
-The No USB mode relies on closed source for the Dispatcher, which fixes a Network error, I am not able to reproduce. I uses `com.apple.security.*` entitlements instead of `com.apple.vm.*`. I cannot tell you, if all Network functionality really works, but if you just wan't to open youre Browser, you are good to go with this one. Maybe you are able to reverse engineer this hack 😉
+The No USB mode relies on closed source for the Dispatcher but uses open source code for the VM, which fixes a Network error, I am not able to reproduce. It uses `com.apple.security.*` entitlements instead of `com.apple.vm.*`. I cannot tell you, if all Network functionality really works, but if you just wan't to open youre Browser, you are good to go with this one. Maybe you are able to reverse engineer this hack 😉
 
 #### Downgrade VM
 It downgrades only the VM so the previous hack works again. However on some platforms, this way of downgrading doesn't work, due to signature errors. Use [this older commit instead](https://github.com/trueToastedCode/ParallelsLab/tree/5525d1faf934a27d0adf8a7e96a4ef2e9a240001) and downgrade Parallels Desktop entirely.
