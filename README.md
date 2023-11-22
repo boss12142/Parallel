@@ -1,34 +1,48 @@
 <div align="center">
    <img src="https://github.com/trueToastedCode/ParallelsLab/assets/44642574/e05554fe-b335-42dc-87d6-7a3780916706" width=128 height=128>
    <h1>Parallels Desktop Crack</h1>
-   <div>19.1.0-54729</div>
+   <div>19.1.1-54734</div>
 </div><br><br>
-✅ ARM64<br>
-✅ x86_64<br>
-✅ Network<br>
-✅ USB<br>
-✅ System Integrity Protection (SIP)<br>
-✅ No additional launcher<br><br>
 
 ## Disclaimer
 The use of software cracks for illegal purposes is strictly prohibited and we encourage the legal purchase and use of the software. By using this software or reading this disclaimer, you acknowledge that you understand the importance of legal software usage and that you will not use software cracks or engage in illegal activities related to software.
 
 ## Usage
-1. [Install Parallels Desktop](https://download.parallels.com/desktop/v19/19.1.0-54729/ParallelsDesktop-19.1.0-54729.dmg)<br>
+1. [Install Parallels Desktop (19.1.1-54734)](https://download.parallels.com/desktop/v19/19.1.1-54734/ParallelsDesktop-19.1.1-54734.dmg)<br>
 2. Sign out your account
 3. Install [Xcode from the App Store](https://apps.apple.com/us/app/xcode/id497799835?mt=12)<br>
    Open it afterwards and install the default components (iOS and MacOS, which cannot be unchecked)
 4. Clone the respository<br>
    `git clone --depth 1 https://github.com/trueToastedCode/ParallelsLab.git && cd ParallelsLab && git submodule update --init --recursive`
 5. Install<br>
-   `chmod +x install.sh && chmod +x reset.command && sudo ./install.sh`
+   `chmod +x install.sh && chmod +x reset.command && sudo ./install.sh <mode>`<br>
+6. Do not open Issues, if you haven't read the README
+
+### Mode
+- I highly recommend `downgrade_vm`, unless you experience Bugs. But for me, it had already worked perfectly fine.<br>
+- Mac VM is not implemented yet, use [this older commit instead](https://github.com/trueToastedCode/ParallelsLab/tree/5525d1faf934a27d0adf8a7e96a4ef2e9a240001).
+
+|Mode|Network|USB|System Integrity Protection (SIP)|Latest Bug Fixes|All Platforms|No additional launcher|Mac VM|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|no_usb|⚠️|❌|✅|✅|✅|✅|❌|
+|downgrade_vm|✅|✅|✅|❌|❌|✅|❌|
+|no_sip|✅|✅|❌|✅|✅|✅|❌|
+
+#### No USB
+The No USB mode relies on closed source for the Dispatcher but uses open source code for the VM, which fixes a Network error, I am not able to reproduce. It uses `com.apple.security.*` entitlements instead of `com.apple.vm.*`. I cannot tell you, if all Network functionality really works, but if you just wan't to open youre Browser, you are good to go with this one. Maybe you are able to reverse engineer this hack 😉
+
+#### Downgrade VM
+It downgrades only the VM so the previous hack works again. However on some platforms, this way of downgrading doesn't work, due to signature errors. Use [this older commit instead](https://github.com/trueToastedCode/ParallelsLab/tree/5525d1faf934a27d0adf8a7e96a4ef2e9a240001) and downgrade Parallels Desktop entirely.
+
+#### No System Integrity Protection (SIP)
+This method injects code into the framework and therefore no binaries with special entitlements have to be resigned. This only works if you disable SIP and also Library Validation using  `sudo defaults write /Library/Preferences/com.apple.security.libraryvalidation.plist DisableLibraryValidation -bool true`. This creates security risks, but malware developers rather target whitespread enviroments.
 
 ## Donation
 <img src="https://github.com/trueToastedCode/ParallelsLab/assets/44642574/8a7a724b-4fed-4f68-8660-e475587d34fd" width=96><br><br>
 Do you want to express gratitude for our reverse engineering efforts?
 
-### [[ PayPal ] trueToastedCode](https://paypal.me/trueToastedCode)
-Involved in versions 18.3 - 19.1
+### [[ PayPal ] trueToastedCode](paypal.me/Lennard478)
+Involved in versions 18.3 - 19.1.1
 
 ### [[ PayPal ] alsyundawy](https://paypal.me/alsyundawy)
 Involved in versions 18.0 - 18.1
