@@ -34,7 +34,7 @@ The No USB mode relies on closed source for the Dispatcher, which fixes a Networ
 #### Downgrade VM
 It downgrades only the VM so the previous hack works again. However on some platforms, this way of downgrading doesn't work, due to signature errors. Use [this older commit instead](https://github.com/trueToastedCode/ParallelsLab/tree/5525d1faf934a27d0adf8a7e96a4ef2e9a240001) and downgrade Parallels Desktop entirely.
 
-#### System Integrity Protection (SIP)
+#### No System Integrity Protection (SIP)
 This method injects code into the framework and therefore no binaries with special entitlements have to be resigned. This only works if you disable SIP and also Library Validation using  `sudo defaults write /Library/Preferences/com.apple.security.libraryvalidation.plist DisableLibraryValidation -bool true`. This creates security risks, but malware developers rather target whitespread enviroments.
 
 ## Donation
