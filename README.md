@@ -15,15 +15,18 @@ The use of software cracks for illegal purposes is strictly prohibited and we en
 4. Clone the respository<br>
    `git clone --depth 1 https://github.com/trueToastedCode/ParallelsLab.git && cd ParallelsLab && git submodule update --init --recursive`
 5. Install<br>
-   `chmod +x install.sh && chmod +x reset.command && sudo ./install.sh <mode>`
+   `chmod +x install.sh && chmod +x reset.command && sudo ./install.sh <mode>`<br>
+6. Do not open Issues, if you haven't read the README
 
 ### Mode
-I highly recommend `downgrade_vm`, unless you experience Bugs. But for me, it had already worked perfectly fine.<br>
-|Mode|Network|USB|System Integrity Protection (SIP)|Latest Bug Fixes|All Platforms|No additional launcher|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|no_usb|⚠️|❌|✅|✅|✅|✅|
-|downgrade_vm|✅|✅|✅|❌|❌|✅|
-|no_sip|✅|✅|❌|✅|✅|✅|
+- I highly recommend `downgrade_vm`, unless you experience Bugs. But for me, it had already worked perfectly fine.<br>
+- Mac VM is not implemented yet, use [this older commit instead](https://github.com/trueToastedCode/ParallelsLab/tree/5525d1faf934a27d0adf8a7e96a4ef2e9a240001).
+
+|Mode|Network|USB|System Integrity Protection (SIP)|Latest Bug Fixes|All Platforms|No additional launcher|Mac VM|
+|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+|no_usb|⚠️|❌|✅|✅|✅|✅|❌|
+|downgrade_vm|✅|✅|✅|❌|❌|✅|❌|
+|no_sip|✅|✅|❌|✅|✅|✅|❌|
 
 #### No USB
 The No USB mode relies on closed source for the Dispatcher, which fixes a Network error, I am not able to reproduce. I uses `com.apple.security.*` entitlements instead of `com.apple.vm.*`. I cannot tell you, if all Network functionality really works, but if you just wan't to open youre Browser, you are good to go with this one. Maybe you are able to reverse engineer this hack 😉
