@@ -72,7 +72,6 @@ MODE_NO_SIP=2
 # check mode
 if [ "$1" == "downgrade_vm" ]; then
   MODE=$MODE_DOWNGRADE_VM
-  echo -e "${COLOR_WARN}[⚠] Mixing versions doesn't work on all system, try or downgrade.${NOCOLOR}"
 elif [ "$1" == "no_usb" ]; then
   MODE=$MODE_NO_USB
 elif [ "$1" == "no_sip" ]; then
@@ -372,7 +371,12 @@ fi
 "${PDFM_DIR}/Contents/MacOS/prlsrvctl" set --cep off &>/dev/null
 "${PDFM_DIR}/Contents/MacOS/prlsrvctl" set --allow-attach-screenshots off &>/dev/null
 
+echo -e "${COLOR_WARN}[⚠] The no USB relies on closed source for the Dispatcher, which fixes a Network error, I am not able to reproduce.${NOCOLOR}"
+echo -e "${COLOR_WARN}[⚠] Maybe you are able to reverse engineer this hack 😉.${NOCOLOR}"
+
 if [ $MODE == $MODE_DOWNGRADE_VM ]; then
-  echo -e "${COLOR_WARN}[⚠] Don't fully quit and reopen Parallels very quickly. It's automatically resetting the crack using hooked functions but this may break it${NOCOLOR}"
-  echo -e "${COLOR_WARN}[⚠] In case you're crack stops working, reset it using \"reset.command\"${NOCOLOR}"
+  echo -e ""
+  echo -e "${COLOR_WARN}[⚠] Mixing versions doesn't work on all system, try or downgrade.${NOCOLOR}"
+  echo -e "${COLOR_WARN}[⚠] Don't fully quit and reopen Parallels very quickly. It's automatically resetting the crack using hooked functions but this may break it.${NOCOLOR}"
+  echo -e "${COLOR_WARN}[⚠] In case you're crack stops working, reset it using \"reset.command\".${NOCOLOR}"
 fi
