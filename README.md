@@ -41,7 +41,7 @@ This method injects code into the framework and therefore no binaries with speci
 <img src="https://github.com/trueToastedCode/ParallelsLab/assets/44642574/8a7a724b-4fed-4f68-8660-e475587d34fd" width=96><br><br>
 Do you want to express gratitude for our reverse engineering efforts?
 
-### [[ PayPal ] trueToastedCode](https://paypal.me/trueToastedCode)
+### [[ PayPal ] trueToastedCode](paypal.me/Lennard478)
 Involved in versions 18.3 - 19.1.1
 
 ### [[ PayPal ] alsyundawy](https://paypal.me/alsyundawy)
