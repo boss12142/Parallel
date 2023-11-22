@@ -264,6 +264,10 @@ fi
 
 # install HookParallels dylib
 cp -f "$HOOK_PARALLELS_DYLIB" "$HOOK_PARALLELS_DYLIB_DST"
+chown root:wheel "${HOOK_PARALLELS_DYLIB_DST}"
+chmod 755 "${HOOK_PARALLELS_DYLIB_DST}"
+xattr -d com.apple.quarantine "$HOOK_PARALLELS_DYLIB_DST"
+codesign -f -s - --timestamp=none --all-architectures "${HOOK_PARALLELS_DYLIB_DST}"
 
 # install macked dylib
 if [ $MODE == $MODE_NO_USB ]; then
