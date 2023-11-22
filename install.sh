@@ -3,6 +3,7 @@
 COLOR_INFO='\033[0;34m'
 COLOR_ERR='\033[0;35m'
 COLOR_WARN='\033[0;93m'
+COLOR_OK='\033[1;32m'
 NOCOLOR='\033[0m'
 
 BASE_PATH=$(
@@ -10,7 +11,9 @@ BASE_PATH=$(
   pwd
 )
 
-PDFM_VER="19.1.0-54729"
+TMP_DIR="${BASE_PATH}/tmp"
+
+PDFM_VER="19.1.1-54734"
 PDFM_DIR="/Applications/Parallels Desktop.app"
 
 LICENSE_FILE="${BASE_PATH}/licenses.json"
@@ -21,17 +24,24 @@ PDFM_DISP_DST="${PDFM_DISP_DIR}/prl_disp_service"
 PDFM_DISP_BCUP="${PDFM_DISP_DST}_bcup"
 PDFM_DISP_PATCH="${PDFM_DISP_DST}_patched"
 PDFM_DISP_ENT="${BASE_PATH}/ParallelsService.entitlements"
-PDFM_DISP_HASH="b7ea2e337e4f950b7e9d576e97d7aae9ad132958c30b151666afa9a4467b5e1c"
+PDFM_DISP_HASH="acc0dd89003bad65ecd4275e04b6f1446ee135dfe3db3ff6f378d3f766c20e48"
 
-TMP_DIR="${BASE_PATH}/tmp"
+PDFM_VM_DIR="${PDFM_DIR}/Contents/MacOS/Parallels VM.app/Contents/MacOS"
+PDFM_VM_DST="${PDFM_VM_DIR}/prl_vm_app"
+PDFM_VM_DST_TMP="${TMP_DIR}/prl_vm_app"
+PDFM_VM_BCUP="${PDFM_VM_DST}_bcup"
+PDFM_VM_ENT="${BASE_PATH}/ParallelsVM.entitlements"
+PDFM_VM_HASH="63eae5502adef612f2f0c28b5db8b113125403bebbaaa95732dcef549d5e9a61"
 
-ARM64_RET_1="${TMP_DIR}/arm64_ret_1"
-ARM64_B_0xC="${TMP_DIR}/arm64_b_0xC"
-ARM64_B_0x10="${TMP_DIR}/arm64_b_0x10"
+PDFM_VM_INFO_DST="${PDFM_DIR}/Contents/MacOS/Parallels VM.app/Contents/Info.plist"
+PDFM_VM_INFO_BCUP="${PDFM_VM_INFO_DST}_bcup"
+PDFM_VM_INFO_HASH="7c2caa40ad5f7b251f23b3b69f2539ef51e7da84c8105f3bab6215dc56217f48"
 
-X86_64_JMP_0x17="${TMP_DIR}/x86_64_jmp_0x17"
-X86_64_JMP_0xA="${TMP_DIR}/x86_64_jmp_0xa"
-X86_64_RET_1="${TMP_DIR}/x86_64_ret_1"
+PDFM_FRAMEWORKS_DIR="${PDFM_DIR}/Contents/Frameworks"
+
+PDFM_QTXML_DIR="${PDFM_FRAMEWORKS_DIR}/QtXml.framework/Versions/5"
+PDFM_QTXML_DST="${PDFM_QTXML_DIR}/QtXml"
+PDFM_QTXML_HASH="731fbabb913f58ce91238883a59f8759badc56775b04aef6993aa36b21841137"
 
 SUBM_DIR="${BASE_PATH}/submodules"
 
@@ -40,9 +50,37 @@ INSERT_DYLIB_PRJ="${INSERT_DYLIB_DIR}/insert_dylib.xcodeproj"
 INSERT_DYLIB_BIN="${INSERT_DYLIB_DIR}/build/Release/insert_dylib"
 
 HOOK_PARALLELS_DIR="${SUBM_DIR}/hook_parallels"
-HOOK_PARALLELS_PRJ="${HOOK_PARALLELS_DIR}/HookParallels.xcodeproj"
-HOOK_PARALLELS_DYLIB="${HOOK_PARALLELS_DIR}/build/Release/libHookParallels.dylib"
-HOOK_PARALLELS_DYLIB_DST="${PDFM_DISP_DIR}/libHookParallels.dylib"
+HOOK_PARALLELS_MAKEFILE="${HOOK_PARALLELS_DIR}/Makefile"
+HOOK_PARALLELS_VARS="${HOOK_PARALLELS_DIR}/variables.sh"
+HOOK_PARALLELS_DYLIB="${HOOK_PARALLELS_DIR}/libHookParallels.dylib"
+HOOK_PARALLELS_DYLIB_DST="${PDFM_FRAMEWORKS_DIR}/libHookParallels.dylib"
+HOOK_PARALLELS_LOAD="@rpath/libHookParallels.dylib"
+
+MASK_DIR="${SUBM_DIR}/mask"
+MASK_MAKEFILE="${MASK_DIR}/Makefile"
+MASK_APPLY_BIN="${MASK_DIR}/apply_mask"
+MASK_VM_54734_TO_54729="${BASE_PATH}/prl_vm_app-mask-54734_to_54729.bin"
+MASK_VM_INFO_54734_TO_54729="${BASE_PATH}/prl_vm-info-mask-54734_to_54729.bin"
+
+MACKED_DYLIB="${BASE_PATH}/macked.app.dylib"
+MACKED_DYLIB_DST="${PDFM_FRAMEWORKS_DIR}/macked.app.dylib"
+MACKED_DYLIB_LOAD="@rpath/macked.app.dylib"
+
+MODE_DOWNGRADE_VM=0
+MODE_NO_USB=1
+MODE_NO_SIP=2
+
+# check mode
+if [ "$1" == "downgrade_vm" ]; then
+  MODE=$MODE_DOWNGRADE_VM
+elif [ "$1" == "no_usb" ]; then
+  MODE=$MODE_NO_USB
+elif [ "$1" == "no_sip" ]; then
+  MODE=$MODE_NO_SIP
+else
+  echo -e "${COLOR_ERR}[-] Invalid mode flag.${NOCOLOR}"
+  exit 1
+fi
 
 # check parallels installation
 if [ ! -d "$PDFM_DIR" ]; then
@@ -60,9 +98,16 @@ if [ "${PDFM_VER}" != "${VERSION_1}-${VERSION_2}" ]; then
 fi
 
 # check submodule files
-if [ ! -d "$INSERT_DYLIB_PRJ" ] || [ ! -d "$HOOK_PARALLELS_PRJ" ]; then
+if [ ! -d "$INSERT_DYLIB_PRJ" ] || [ ! -f "$HOOK_PARALLELS_MAKEFILE" ]; then
   echo -e "${COLOR_ERR}[-] Missing submodule files, perhaps you forgot to execute \"git submodule update --init --recursive\"${NOCOLOR}"
   exit 2
+fi
+
+# check state of qtxml
+# (once modified, it cannot be recovered... unlike the other binaries)
+if [ ! -f "$PDFM_QTXML_DST" ] || [ $(shasum -a 256 "$PDFM_QTXML_DST" | awk '{print $1}') != "$PDFM_QTXML_HASH" ]; then
+  echo -e "${COLOR_ERR}[-] Invalid state of QtXml (cannot ever be recovered), please reinstall Parallels Desktop.\"${NOCOLOR}"
+  exit 1
 fi
 
 # check root permission
@@ -101,11 +146,69 @@ if [ "$need_backup_pdfm_disp" = true ]; then
   cp -f "${PDFM_DISP_DST}" "${PDFM_DISP_BCUP}"
 fi
 
+# check state of pdfm vm
+need_recover_pdfm_vm=false
+
+if [ ! -f "$PDFM_VM_DST" ] || [ $(shasum -a 256 "$PDFM_VM_DST" | awk '{print $1}') != "$PDFM_VM_HASH" ]; then
+  need_recover_pdfm_vm=true
+fi
+
+# check state of pdfm vm bcup
+need_backup_pdfm_vm=true
+
+if [ -f "$PDFM_VM_BCUP" ] && [ $(shasum -a 256 "$PDFM_VM_BCUP" | awk '{print $1}') == "$PDFM_VM_HASH" ]; then
+  need_backup_pdfm_vm=false
+fi
+
+# recover pdfm vm if necessary 
+if [ "$need_recover_pdfm_vm" = true ]; then
+  if [ "$need_backup_pdfm_vm" = true ]; then
+    echo -e "${COLOR_ERR}[-] State of Parallels VM is invalid and a valid backup could not be found. Please reinstall Parallels.${NOCOLOR}"
+    exit 2
+  fi
+  echo -e "${COLOR_WARN}[-] State of Parallels VM is invalid, recover from backup.${NOCOLOR}"
+  cp -f "$PDFM_VM_BCUP" "$PDFM_VM_DST"
+fi
+
+# backup pdfm vm if necessary
+if [ "$need_backup_pdfm_vm" = true ]; then
+  cp -f "${PDFM_VM_DST}" "${PDFM_VM_BCUP}"
+fi
+
+# check state of pdfm vm info
+need_recover_pdfm_vm_info=false
+
+if [ ! -f "$PDFM_VM_INFO_DST" ] || [ $(shasum -a 256 "$PDFM_VM_INFO_DST" | awk '{print $1}') != "$PDFM_VM_INFO_HASH" ]; then
+  need_recover_pdfm_vm_info=true
+fi
+
+# check state of pdfm vm info bcup
+need_backup_pdfm_vm_info=true
+
+if [ -f "$PDFM_VM_INFO_BCUP" ] && [ $(shasum -a 256 "$PDFM_VM_INFO_BCUP" | awk '{print $1}') == "$PDFM_VM_INFO_HASH" ]; then
+  need_backup_pdfm_vm_info=false
+fi
+
+# recover pdfm vm if necessary 
+if [ "$need_recover_pdfm_vm_info" = true ]; then
+  if [ "$need_backup_pdfm_vm_info" = true ]; then
+    echo -e "${COLOR_ERR}[-] State of Parallels VM Info is invalid and a valid backup could not be found. Please reinstall Parallels.${NOCOLOR}"
+    exit 2
+  fi
+  echo -e "${COLOR_WARN}[-] State of Parallels VM Info is invalid, recover from backup.${NOCOLOR}"
+  cp -f "$PDFM_VM_INFO_BCUP" "$PDFM_VM_INFO_DST"
+fi
+
+# backup pdfm vm if necessary
+if [ "$need_backup_pdfm_vm_info" = true ]; then
+  cp -f "${PDFM_VM_INFO_DST}" "${PDFM_VM_INFO_BCUP}"
+fi
+
 echo -e "${COLOR_INFO}[*] Compiling...${NOCOLOR}"
 
-# compile insert_dylib
+# compile insert_dylib if neccessary
 if [ ! -f "$INSERT_DYLIB_BIN" ]; then
-  xcodebuild -project "$INSERT_DYLIB_PRJ"
+  sudo -u $SUDO_USER xcodebuild -project "$INSERT_DYLIB_PRJ"
   if [ ! -f "$INSERT_DYLIB_BIN" ]; then
     echo -e "${COLOR_ERR}[-] Compiled insert_dylib binary not found.${NOCOLOR}"
     exit 2
@@ -113,12 +216,30 @@ if [ ! -f "$INSERT_DYLIB_BIN" ]; then
 fi
 
 # compile HookParallels
+if [ $MODE == $MODE_DOWNGRADE_VM ]; then
+  sed "s|export VM_54729=0|export VM_54729=1|g" "$HOOK_PARALLELS_VARS" > tmpfile
+else
+  sed "s|export VM_54729=1|export VM_54729=0|g" "$HOOK_PARALLELS_VARS" > tmpfile
+fi
+mv tmpfile "$HOOK_PARALLELS_VARS"
+cd "${HOOK_PARALLELS_DIR}"
+make clean
+sudo -u $SUDO_USER make
 if [ ! -f "$HOOK_PARALLELS_DYLIB" ]; then
-  xcodebuild -project "$HOOK_PARALLELS_PRJ"
-  if [ ! -f "$HOOK_PARALLELS_DYLIB" ]; then
-    echo -e "${COLOR_ERR}[-] Compiled HookParallels dylib not found.${NOCOLOR}"
+  echo -e "${COLOR_ERR}[-] Compiled HookParallels dylib not found.${NOCOLOR}"
+  exit 2
+fi
+
+# compile mask if neccessary
+if [ ! -f "${MASK_APPLY_BIN}" ] && [ $MODE == $MODE_DOWNGRADE_VM ]; then
+  cd "${MASK_DIR}"
+  sudo -u $SUDO_USER make
+  cd "${BASE_PATH}"
+  if [ ! -f "${MASK_APPLY_BIN}" ]; then
+    echo -e "${COLOR_ERR}[-] Compiled apply_mask binary not found.${NOCOLOR}"
     exit 2
   fi
+  cd "${BASE_PATH}"
 fi
 
 # stop prl_disp_service
@@ -137,81 +258,99 @@ fi
 
 echo -e "${COLOR_INFO}[*] Installing...${NOCOLOR}"
 
-# prepare temp folder and files
-if [ ! -d "${TMP_DIR}" ]; then
-    mkdir "${TMP_DIR}"
+if [ $MODE == $MODE_NO_USB ] && [ ! -d "$TMP_DIR" ]; then
+  mkdir "$TMP_DIR"
 fi
 
-echo -n -e '\x20\x00\x80\xd2\xc0\x03\x5f\xd6' > "${ARM64_RET_1}"
-echo -n -e '\x04\x00\x00\x14' > "${ARM64_B_0x10}"
-echo -n -e '\x03\x00\x00\x14' > "${ARM64_B_0xC}"
+# install HookParallels dylib
+cp -f "$HOOK_PARALLELS_DYLIB" "$HOOK_PARALLELS_DYLIB_DST"
+chown root:wheel "${HOOK_PARALLELS_DYLIB_DST}"
+chmod 755 "${HOOK_PARALLELS_DYLIB_DST}"
+xattr -d com.apple.quarantine "$HOOK_PARALLELS_DYLIB_DST"
+codesign -f -s - --timestamp=none --all-architectures "${HOOK_PARALLELS_DYLIB_DST}"
 
-echo -n -e '\xeb\x15' > "${X86_64_JMP_0x17}"
-echo -n -e '\xeb\x08' > "${X86_64_JMP_0xA}"
-echo -n -e '\x6a\x01\x58\xc3' > "${X86_64_RET_1}"
+# install macked dylib
+if [ $MODE == $MODE_NO_USB ]; then
+  cp -f "$MACKED_DYLIB" "$MACKED_DYLIB_DST"
+  chown root:wheel "${MACKED_DYLIB_DST}"
+  chmod 755 "${MACKED_DYLIB_DST}"
+  xattr -d com.apple.quarantine "$MACKED_DYLIB_DST"
+  codesign -f -s - --timestamp=none --all-architectures "${MACKED_DYLIB_DST}"
+elif [ -f "$MACKED_DYLIB_DST" ]; then
+  rm "$MACKED_DYLIB_DST"
+fi
 
-# patch prl_disp_service
+# patch qtxml if neccessary
+if [ $MODE == $MODE_NO_SIP ]; then
+  chflags -R 0 "${PDFM_QTXML_DST}"
+  "$INSERT_DYLIB_BIN" --no-strip-codesig --inplace "$HOOK_PARALLELS_LOAD" "$PDFM_QTXML_DST"
+  chown root:wheel "${PDFM_QTXML_DST}"
+  chmod 755 "${PDFM_QTXML_DST}"
+  codesign -f -s - --timestamp=none --all-architectures "${PDFM_QTXML_DST}"
+fi
+
+# patch dispatcher
 chflags -R 0 "${PDFM_DISP_DST}"
 
-# [ ARM64 ]
+if [ $MODE == $MODE_DOWNGRADE_VM ]; then
+  chflags -R 0 "${PDFM_DISP_DST}"
+  "$INSERT_DYLIB_BIN" --no-strip-codesig --inplace "$HOOK_PARALLELS_LOAD" "$PDFM_DISP_DST"
+  chown root:wheel "${PDFM_DISP_DST}"
+  chmod 755 "${PDFM_DISP_DST}"
+  codesign -f -s - --timestamp=none --all-architectures --entitlements "${PDFM_DISP_ENT}" "${PDFM_DISP_DST}"
+fi
 
-# arm64 bypass public key loading errors
-# 0xDF6928
-dd if="${ARM64_B_0x10}" of="${PDFM_DISP_DST}" obs=1 seek=14641448 conv=notrunc
+if [ $MODE == $MODE_NO_USB ]; then
+  chflags -R 0 "${PDFM_DISP_DST}"
+  "$INSERT_DYLIB_BIN" --no-strip-codesig --inplace "$MACKED_DYLIB_LOAD" "$PDFM_DISP_DST"
+  chown root:wheel "${PDFM_DISP_DST}"
+  chmod 755 "${PDFM_DISP_DST}"
+  codesign -f -s - --timestamp=none --all-architectures --entitlements "${PDFM_DISP_ENT}" "${PDFM_DISP_DST}"
+fi
 
-# arm64 partly bypass license info loading errors
-# 0xDF696C
-dd if="${ARM64_B_0xC}" of="${PDFM_DISP_DST}" obs=1 seek=14641516 conv=notrunc
+if [ $MODE == $MODE_DOWNGRADE_VM ]; then
+  cp -f "${PDFM_DISP_DST}" "${PDFM_DISP_PATCH}"
+  chown -R root:admin "${PDFM_DISP_DIR}"
+elif [ -f "${PDFM_DISP_PATCH}" ]; then
+  rm "${PDFM_DISP_PATCH}"
+fi
 
-# arm64 bypass license signature check
-# 0x1066D84
-dd if="${ARM64_RET_1}" of="${PDFM_DISP_DST}" obs=1 seek=17198468 conv=notrunc
+# downgrade vm if neccessary
+if [ $MODE == $MODE_DOWNGRADE_VM ]; then
+  "$MASK_APPLY_BIN" "-s$PDFM_VM_BCUP" "-m$MASK_VM_54734_TO_54729" "-o$PDFM_VM_DST"
+  "$MASK_APPLY_BIN" "-s$PDFM_VM_INFO_BCUP" "-m$MASK_VM_INFO_54734_TO_54729" "-o$PDFM_VM_INFO_DST"
+fi
 
-# arm64 bypass binary codesign check
-# 0x12366D4
-dd if="${ARM64_RET_1}" of="${PDFM_DISP_DST}" obs=1 seek=19097300 conv=notrunc
-
-# [ x86_64 ]
-
-# x86_64 bypass public key loading errors
-# 0x33AB95
-dd if="${X86_64_JMP_0x17}" of="${PDFM_DISP_DST}" obs=1 seek=3386261 conv=notrunc
-
-# arm64 partly bypass license info loading errors
-# 0x33ABDE
-dd if="${X86_64_JMP_0xA}" of="${PDFM_DISP_DST}" obs=1 seek=3386334 conv=notrunc
-
-# X86_64 bypass license signature check
-# 0x59AF00
-dd if="${X86_64_RET_1}" of="${PDFM_DISP_DST}" obs=1 seek=5877504 conv=notrunc
-
-# X86_64 bypass binary codesign check
-# 0x7ABE20
-dd if="${X86_64_RET_1}" of="${PDFM_DISP_DST}" obs=1 seek=8044064 conv=notrunc
-
-# insert HookParallels dylib
-cp -f "$HOOK_PARALLELS_DYLIB" "$HOOK_PARALLELS_DYLIB_DST"
-"$INSERT_DYLIB_BIN" --no-strip-codesig --inplace "$HOOK_PARALLELS_DYLIB_DST" "$PDFM_DISP_DST"
-
-chown root:wheel "${PDFM_DISP_DST}"
-chmod 755 "${PDFM_DISP_DST}"
-codesign -f -s - --timestamp=none --all-architectures --entitlements "${PDFM_DISP_ENT}" "${PDFM_DISP_DST}"
-cp -f "${PDFM_DISP_DST}" "${PDFM_DISP_PATCH}"
-
-# delete temp folder
-rm -rf "${TMP_DIR}"
+# patch vm if neccessary
+if [ $MODE == $MODE_NO_USB ]; then
+  chflags -R 0 "${PDFM_VM_DST}"
+  cp -f "$PDFM_VM_BCUP" "$PDFM_VM_DST_TMP"
+  "$INSERT_DYLIB_BIN" --no-strip-codesig --inplace "$HOOK_PARALLELS_LOAD" "$PDFM_VM_DST"
+  chown root:wheel "${PDFM_VM_DST}"
+  chmod 755 "${PDFM_VM_DST}"
+  codesign -f -s - --timestamp=none --all-architectures --deep --entitlements "${PDFM_VM_ENT}" "${PDFM_VM_DST}"
+  cp -f "$PDFM_VM_DST_TMP" "$PDFM_VM_BCUP"
+fi
 
 # install fake license
 if [ -f "${LICENSE_DST}" ]; then
   chflags -R 0 "${LICENSE_DST}"
   rm -f "${LICENSE_DST}" > /dev/null
 fi
-cp -f "${LICENSE_FILE}" "${LICENSE_DST}"
-chown root:wheel "${LICENSE_DST}"
-chmod 444 "${LICENSE_DST}"
-chflags -R 0 "${LICENSE_DST}"
-chflags uchg "${LICENSE_DST}"
-chflags schg "${LICENSE_DST}"
+
+if [ $MODE != $MODE_NO_USB ]; then
+  cp -f "${LICENSE_FILE}" "${LICENSE_DST}"
+  chown root:wheel "${LICENSE_DST}"
+  chmod 444 "${LICENSE_DST}"
+  chflags -R 0 "${LICENSE_DST}"
+  chflags uchg "${LICENSE_DST}"
+  chflags schg "${LICENSE_DST}"
+fi
+
+# clean
+if [ -d "$TMP_DIR" ]; then
+  rm -rf "$TMP_DIR"
+fi
 
 # start prl_disp_service
 if ! pgrep -x "prl_disp_service" &>/dev/null; then
@@ -233,7 +372,25 @@ fi
 "${PDFM_DIR}/Contents/MacOS/prlsrvctl" set --cep off &>/dev/null
 "${PDFM_DIR}/Contents/MacOS/prlsrvctl" set --allow-attach-screenshots off &>/dev/null
 
-chown -R "$(id -un)":admin "${PDFM_DISP_DIR}"
+echo -e ""
+echo -e "${COLOR_OK}Do you want to express gratitude for our reverse engineering efforts?${NOCOLOR}"
+echo -e ""
+echo -e "${COLOR_OK}[ PayPal ] trueToastedCode (Involved in versions 18.3 - 19.1.1)${NOCOLOR}"
+echo -e "${COLOR_OK}https://paypal.me/trueToastedCode${NOCOLOR}"
+echo -e ""
+echo -e "${COLOR_OK}[ PayPal ] alsyundawy (Involved in versions 18.0 - 18.1)${NOCOLOR}"
+echo -e "${COLOR_OK}https://paypal.me/alsyundawy${NOCOLOR}"
+echo -e ""
+echo -e "${COLOR_OK}[ PayPal ] QiuChenly (Inspired trueToastedCode on dylib-injections in 19.1)${NOCOLOR}"
+echo -e "${COLOR_OK}https://github.com/QiuChenly${NOCOLOR}"
+echo -e ""
 
-echo -e "${COLOR_WARN}⚠ Don't fully quit and reopen Parallels very quickly. It's automatically resetting the crack using hooked functions but this may break it ⚠${NOCOLOR}"
-echo -e "${COLOR_WARN}🔧 In case you're crack stops working, reset it using \"reset.command\" 🔧${NOCOLOR}"
+echo -e "${COLOR_WARN}[⚠] The No USB method relies on closed source for the Dispatcher, which fixes a Network error, I am not able to reproduce.${NOCOLOR}"
+echo -e "${COLOR_WARN}[⚠] Maybe you are able to reverse engineer this hack 😉.${NOCOLOR}"
+
+if [ $MODE == $MODE_DOWNGRADE_VM ]; then
+  echo -e ""
+  echo -e "${COLOR_WARN}[⚠] Mixing versions doesn't work on all system, try or downgrade.${NOCOLOR}"
+  echo -e "${COLOR_WARN}[⚠] Don't fully quit and reopen Parallels very quickly. It's automatically resetting the crack using hooked functions but this may break it.${NOCOLOR}"
+  echo -e "${COLOR_WARN}[⚠] In case you're crack stops working, reset it using \"reset.command\".${NOCOLOR}"
+fi

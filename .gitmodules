@@ -8,3 +8,7 @@
 [submodule "submodules/rd_route"]
 	path = submodules/rd_route
 	url = https://github.com/trueToastedCode/rd_route.git
+[submodule "submodules/mask"]
+	path = submodules/mask
+	url = https://github.com/trueToastedCode/mask.git
+	branch = main
