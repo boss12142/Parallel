@@ -222,7 +222,6 @@ else
   sed "s|export VM_54729=1|export VM_54729=0|g" "$HOOK_PARALLELS_VARS" > tmpfile
 fi
 mv tmpfile "$HOOK_PARALLELS_VARS"
-rm tmpfile
 cd "${HOOK_PARALLELS_DIR}"
 make clean
 sudo -u $SUDO_USER make
