@@ -79,6 +79,8 @@ elif [ "$1" == "no_sip" ]; then
   MODE=$MODE_NO_SIP
 else
   echo -e "${COLOR_ERR}[-] Invalid mode flag.${NOCOLOR}"
+  echo -e "${COLOR_ERR}[-] The syntax is \"./install.sh <mode>\"${NOCOLOR}"
+  echo -e "${COLOR_ERR}[-] \"<mode>\" is a placeholder that needs to be replaced with the actual mode, for example \"sudo ./install.sh downgrade_vm\"${NOCOLOR}"
   exit 1
 fi
 
@@ -217,11 +219,11 @@ fi
 
 # compile HookParallels
 if [ $MODE == $MODE_DOWNGRADE_VM ]; then
-  sed "s|export VM_54729=0|export VM_54729=1|g" "$HOOK_PARALLELS_VARS" > tmpfile
+  sudo -u $SUDO_USER sed "s|export VM_54729=0|export VM_54729=1|g" "$HOOK_PARALLELS_VARS" > tmpfile
 else
-  sed "s|export VM_54729=1|export VM_54729=0|g" "$HOOK_PARALLELS_VARS" > tmpfile
+  sudo -u $SUDO_USER sed "s|export VM_54729=1|export VM_54729=0|g" "$HOOK_PARALLELS_VARS" > tmpfile
 fi
-mv tmpfile "$HOOK_PARALLELS_VARS"
+sudo -u $SUDO_USER mv -f tmpfile "$HOOK_PARALLELS_VARS"
 cd "${HOOK_PARALLELS_DIR}"
 make clean
 sudo -u $SUDO_USER make
@@ -293,7 +295,6 @@ fi
 chflags -R 0 "${PDFM_DISP_DST}"
 
 if [ $MODE == $MODE_DOWNGRADE_VM ]; then
-  chflags -R 0 "${PDFM_DISP_DST}"
   "$INSERT_DYLIB_BIN" --no-strip-codesig --inplace "$HOOK_PARALLELS_LOAD" "$PDFM_DISP_DST"
   chown root:wheel "${PDFM_DISP_DST}"
   chmod 755 "${PDFM_DISP_DST}"
@@ -301,7 +302,6 @@ if [ $MODE == $MODE_DOWNGRADE_VM ]; then
 fi
 
 if [ $MODE == $MODE_NO_USB ]; then
-  chflags -R 0 "${PDFM_DISP_DST}"
   "$INSERT_DYLIB_BIN" --no-strip-codesig --inplace "$MACKED_DYLIB_LOAD" "$PDFM_DISP_DST"
   chown root:wheel "${PDFM_DISP_DST}"
   chmod 755 "${PDFM_DISP_DST}"

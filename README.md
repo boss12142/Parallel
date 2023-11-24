@@ -12,11 +12,14 @@ The use of software cracks for illegal purposes is strictly prohibited and we en
 2. Sign out your account
 3. Install [Xcode from the App Store](https://apps.apple.com/us/app/xcode/id497799835?mt=12)<br>
    Open it afterwards and install the default components (iOS and MacOS, which cannot be unchecked)
-4. Clone the respository<br>
+4. Enable `System Preferences ▸ Privacy & Security ▸ Full Disk Access ▸ Terminal`
+5. Clone the respository<br>
    `git clone --depth 1 https://github.com/trueToastedCode/ParallelsLab.git && cd ParallelsLab && git submodule update --init --recursive`
-5. Install<br>
+6. Install<br>
    `chmod +x install.sh && chmod +x reset.command && sudo ./install.sh <mode>`<br>
-6. Do not open Issues, if you haven't read the README
+   Note: `<mode>` is a placeholder that needs to be replaced with the actual mode,<br>
+   for example `sudo ./install.sh downgrade_vm`<br>
+7. Do not open issues, if you haven't read the README
 
 ### Mode
 - I highly recommend `downgrade_vm`, unless you experience Bugs. But for me, it had already worked perfectly fine.<br>
@@ -51,21 +54,18 @@ Involved in versions 18.0 - 18.1
 Inspired trueToastedCode on dylib-injections in 19.1
 
 ## Sidenotes
-### ⚠ Don't fully quit and reopen Parallels very quickly ⚠
+### [ downgrade_vm ] ⚠ Don't fully quit and reopen Parallels very quickly ⚠
 *It's automatically resetting the crack using hooked functions but this may break it*
 
-### 🔧 In case your crack stops working 🔧
+### [ downgrade_vm ] 🔧 In case your crack stops working 🔧
 Reset it using \"reset.command\"
 
 ### Issues
 [Report issues here](https://github.com/trueToastedCode/ParallelsLab/issues)
 
-### Operation not permitted
-Enable `System Preferences ▸ Privacy & Security ▸ Full Disk Access ▸ Terminal`
-### codesign error
-Ensure xcode command line tools installed. Install it with using the command `xcode-select --install`.
+### `tool 'xcodebuild' requires Xcode, but active...
+`sudo xcode-select -s /Applications/Xcode.app/Contents/Developer`
 
-Check installation with `xcode-select -p`, which will output `/Library/Developer/CommandLineTools` or `/Applications/Xcode.app/Contents/Developer`.
 ## Hosts
 You also want to block Parallels Servers.
 ```
