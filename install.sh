@@ -293,7 +293,6 @@ fi
 chflags -R 0 "${PDFM_DISP_DST}"
 
 if [ $MODE == $MODE_DOWNGRADE_VM ]; then
-  chflags -R 0 "${PDFM_DISP_DST}"
   "$INSERT_DYLIB_BIN" --no-strip-codesig --inplace "$HOOK_PARALLELS_LOAD" "$PDFM_DISP_DST"
   chown root:wheel "${PDFM_DISP_DST}"
   chmod 755 "${PDFM_DISP_DST}"
@@ -301,7 +300,6 @@ if [ $MODE == $MODE_DOWNGRADE_VM ]; then
 fi
 
 if [ $MODE == $MODE_NO_USB ]; then
-  chflags -R 0 "${PDFM_DISP_DST}"
   "$INSERT_DYLIB_BIN" --no-strip-codesig --inplace "$MACKED_DYLIB_LOAD" "$PDFM_DISP_DST"
   chown root:wheel "${PDFM_DISP_DST}"
   chmod 755 "${PDFM_DISP_DST}"
