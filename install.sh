@@ -217,11 +217,11 @@ fi
 
 # compile HookParallels
 if [ $MODE == $MODE_DOWNGRADE_VM ]; then
-  sed "s|export VM_54729=0|export VM_54729=1|g" "$HOOK_PARALLELS_VARS" > tmpfile
+  sudo -u $SUDO_USER sed "s|export VM_54729=0|export VM_54729=1|g" "$HOOK_PARALLELS_VARS" > tmpfile
 else
-  sed "s|export VM_54729=1|export VM_54729=0|g" "$HOOK_PARALLELS_VARS" > tmpfile
+  sudo -u $SUDO_USER sed "s|export VM_54729=1|export VM_54729=0|g" "$HOOK_PARALLELS_VARS" > tmpfile
 fi
-mv tmpfile "$HOOK_PARALLELS_VARS"
+sudo -u $SUDO_USER mv tmpfile "$HOOK_PARALLELS_VARS"
 cd "${HOOK_PARALLELS_DIR}"
 make clean
 sudo -u $SUDO_USER make
