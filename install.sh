@@ -223,7 +223,7 @@ if [ $MODE == $MODE_DOWNGRADE_VM ]; then
 else
   sudo -u $SUDO_USER sed "s|export VM_54729=1|export VM_54729=0|g" "$HOOK_PARALLELS_VARS" > tmpfile
 fi
-sudo -u $SUDO_USER mv tmpfile "$HOOK_PARALLELS_VARS"
+sudo -u $SUDO_USER mv -f tmpfile "$HOOK_PARALLELS_VARS"
 cd "${HOOK_PARALLELS_DIR}"
 make clean
 sudo -u $SUDO_USER make
