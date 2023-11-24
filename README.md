@@ -16,7 +16,8 @@ The use of software cracks for illegal purposes is strictly prohibited and we en
    `git clone --depth 1 https://github.com/trueToastedCode/ParallelsLab.git && cd ParallelsLab && git submodule update --init --recursive`
 5. Install<br>
    `chmod +x install.sh && chmod +x reset.command && sudo ./install.sh <mode>`<br>
-6. Do not open Issues, if you haven't read the README
+   `<mode>` is a placeholder that needs to be replaced with the actual mode, for example `sudo ./install.sh downgrade_vm`<br>
+6. Do not open issues, if you haven't read the README
 
 ### Mode
 - I highly recommend `downgrade_vm`, unless you experience Bugs. But for me, it had already worked perfectly fine.<br>

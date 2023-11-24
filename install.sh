@@ -79,6 +79,8 @@ elif [ "$1" == "no_sip" ]; then
   MODE=$MODE_NO_SIP
 else
   echo -e "${COLOR_ERR}[-] Invalid mode flag.${NOCOLOR}"
+  echo -e "${COLOR_ERR}[-] The syntax is \"./install.sh <mode>\"${NOCOLOR}"
+  echo -e "${COLOR_ERR}[-] \"<mode>\" is a placeholder that needs to be replaced with the actual mode, for example \"sudo ./install.sh downgrade_vm\"${NOCOLOR}"
   exit 1
 fi
 
