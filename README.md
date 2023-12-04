@@ -14,7 +14,7 @@ The use of software cracks for illegal purposes is strictly prohibited and we en
    Open it afterwards and install the default components (iOS and MacOS, which cannot be unchecked)
 4. Enable `System Preferences ▸ Privacy & Security ▸ Full Disk Access ▸ Terminal`
 5. Clone the respository<br>
-   `git clone --depth 1 https://github.com/trueToastedCode/ParallelsLab.git && cd ParallelsLab && git submodule update --init --recursive`
+   `git clone -b main --depth 1 https://github.com/trueToastedCode/ParallelsLab.git && cd ParallelsLab && git submodule update --init --recursive`
 6. Install<br>
    `chmod +x install.sh && chmod +x reset.command && sudo ./install.sh <mode>`<br>
    Note: `<mode>` is a placeholder that needs to be replaced with the actual mode,<br>
