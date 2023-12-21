@@ -16,11 +16,11 @@
 The use of software cracks for illegal purposes is strictly prohibited and we encourage the legal purchase and use of the software. By using this software or reading this disclaimer, you acknowledge that you understand the importance of legal software usage and that you will not use software cracks or engage in illegal activities related to software.
 
 ## Usage
-1. [Install Parallels Desktop (19.1.1-54734)](https://download.parallels.com/desktop/v19/19.1.1-54734/ParallelsDesktop-19.1.1-54734.dmg)<br>
+1. [Install Parallels Desktop (19.2.0-54827)](https://download.parallels.com/desktop/v19/19.2.0-54827/ParallelsDesktop-19.2.0-54827.dmg)<br>
 2. Sign out your account
 3. Clone the respository:<br>
 `git clone -b macked --depth 1 https://github.com/trueToastedCode/ParallelsLab.git ParallelsLabMacked`
-4. Install Parallels Desktop Activation Tool using the dmg
+4. Install Parallels Desktop Activation Tool using the dmg (Try 4.4.0, consider 4.4.1 if you experience issues)
 5. Remove quarantine:<br>
 `sudo xattr -d com.apple.quarantine /Applications/Parallels\ Desktop\ Activation\ Tool.app`
 6. Using Finder, navigate to the application folder, click on the application while holding control and choose open. This allows the execution from an unverified developer
