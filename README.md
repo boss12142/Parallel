@@ -1,7 +1,7 @@
 <div align="center">
    <img src="https://github.com/trueToastedCode/ParallelsLab/assets/44642574/e05554fe-b335-42dc-87d6-7a3780916706" width=128 height=128>
    <h1>Parallels Desktop Crack</h1>
-   <div>19.1.1-54734</div>
+   <div>19.2.0-54827</div>
 </div><br><br>
 
 ✅ ARM64<br>
